@@ -37,6 +37,6 @@ vim.diagnostic.config({
 })
 
 
-vim.o.completeopt = 'menu,preview,noinsert' -- Fix auto inserted completions
+vim.o.completeopt = 'menu,menuone,preview,noinsert' -- Fix auto inserted completions
 
 vim.o.laststatus = 3

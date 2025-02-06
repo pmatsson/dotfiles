@@ -36,6 +36,7 @@ return {
             }
         end,
         theme = "wave",
+	transparent = true
     },
     config = function()
         vim.cmd("colorscheme kanagawa-wave")

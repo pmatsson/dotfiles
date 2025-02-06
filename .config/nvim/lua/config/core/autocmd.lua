@@ -5,6 +5,12 @@ vim.api.nvim_create_autocmd('CompleteDone', {
     end
 })
 
+vim.api.nvim_create_autocmd('TextYankPost', {
+    desc = 'Highlight yanked text',
+    callback = function()
+        vim.highlight.on_yank({ higroup = 'Visual', timeout = 600 })
+    end,
+})
 
 vim.api.nvim_create_autocmd('LspAttach', {
     desc = 'LSP actions',
@@ -56,12 +62,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
         bufmap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<cr>')
 
         -- Renames all references to the symbol under the cursor
-        bufmap('n', '<C-r>', '<cmd>lua vim.lsp.buf.rename()<cr>')
+        bufmap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<cr>')
 
         -- Format current file
         bufmap('n', '<leader>kd', '<cmd>lua vim.lsp.buf.format()<cr>')
 
         -- Selects a code action available at the current cursor position
-        bufmap('n', '<C-CR>', '<cmd>lua vim.lsp.buf.code_action()<cr>')
+        bufmap('n', '<leader>ka', '<cmd>lua vim.lsp.buf.code_action()<cr>')
     end
 })

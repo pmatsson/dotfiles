@@ -4,6 +4,10 @@ return {
     event = 'ColorScheme',
     config = function()
         local lualine = require('lualine')
-        lualine.setup({})
+        lualine.setup({
+            tabline = {
+                lualine_a = { 'buffers' },
+            }
+        })
     end
 }

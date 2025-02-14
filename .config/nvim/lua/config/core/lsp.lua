@@ -9,10 +9,15 @@ vim.lsp.config('*', {
     root_markers = { '.git' },
 })
 
-vim.lsp.enable('luals')
-vim.lsp.enable('tsls')
-vim.lsp.enable('htmlls')
-vim.lsp.enable('cssls')
-
-require 'lspconfig'.eslint.setup {}
-require 'lspconfig'.angularls.setup {}
+-- vim.lsp.enable('luals')
+-- vim.lsp.enable('tsls')
+--vim.lsp.enable('htmlls')
+-- vim.lsp.enable('cssls')
+-- vim.lsp.enable('eslint')
+--vim.lsp.enable('angularls')
+require'lspconfig'.lua_ls.setup{}
+require'lspconfig'.html.setup{}
+require'lspconfig'.cssls.setup{}
+require'lspconfig'.eslint.setup{}
+require'lspconfig'.ts_ls.setup{}
+require'lspconfig'.angularls.setup{}

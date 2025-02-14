@@ -24,7 +24,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
             end
 
             if client:supports_method('textDocument/completion') then
-                vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
+                vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = false })
             end
         end
         local bufmap = function(mode, lhs, rhs)
@@ -65,7 +65,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
         bufmap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<cr>')
 
         -- Format current file
-        bufmap('n', '<leader>kd', '<cmd>lua vim.lsp.buf.format()<cr>')
+        -- bufmap('n', '<leader>kd', '<cmd>lua conform.format()<cr>') -- Using conform for this
 
         -- Selects a code action available at the current cursor position
         bufmap('n', '<leader>ka', '<cmd>lua vim.lsp.buf.code_action()<cr>')

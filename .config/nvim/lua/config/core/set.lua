@@ -28,15 +28,18 @@ vim.opt.isfname:append("@-@")
 
 vim.opt.updatetime = 50
 
-vim.opt.colorcolumn = "90"
+--vim.opt.colorcolumn = "90"
+vim.opt.guicursor = { a = "blinkon0" }
 
 vim.diagnostic.config({
-    virtual_text = true,      -- Show virtual text inline
-    signs = true,             -- Show signs in the gutter
-    update_in_insert = false, -- Disable updates while typing
+	virtual_text = true, -- Show virtual text inline
+	signs = true, -- Show signs in the gutter
+	update_in_insert = false, -- Disable updates while typing
 })
 
-
-vim.o.completeopt = 'menu,menuone,preview,noinsert' -- Fix auto inserted completions
+vim.o.completeopt = "menu,menuone,preview,noinsert" -- Fix auto inserted completions
 
 vim.o.laststatus = 3
+
+vim.cmd.colorscheme("catppuccin-frappe")
+

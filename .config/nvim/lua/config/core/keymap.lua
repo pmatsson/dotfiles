@@ -27,7 +27,3 @@ vim.keymap.set("n", "<leader>ff", "<CMD>FzfLua files<CR>", { desc = "Find files"
 vim.keymap.set("n", "<leader>fg", "<CMD>FzfLua live_grep<CR>", { desc = "Grep files" })
 vim.keymap.set("n", "<leader>fb", "<CMD>FzfLua buffers<CR>", { desc = "Search buffers" })
 vim.keymap.set("n", "-", "<CMD>Oil<CR>", { desc = "Open parent directory" })
--- vim.keymap.set("n", "<A-->", "<CMD>lua Snacks.explorer.open()<CR>", { desc = "Open file tree" })
--- vim.keymap.set("n", "<leader>bd", "<CMD>lua Snacks.bufdelete()<CR>", { desc = "Delete the current buffer" })
--- vim.keymap.set("n", "<leader>ba", "<CMD>lua Snacks.bufdelete.all()<CR>", { desc = "Delete all buffers" })
--- vim.keymap.set("n", "<leader>bo", "<CMD>lua Snacks.bufdelete.other()<CR>", { desc = "Delete all other buffers" })

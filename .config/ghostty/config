@@ -1,0 +1,8 @@
+keybind = ctrl+enter=unbind
+font-family = "Monaspace Neon Medium"
+window-save-state=always
+scrollback-limit = 10_000
+clipboard-read = allow
+clipboard-paste-protection = false
+theme = catppuccin-frappe
+adjust-cell-width = -5% 

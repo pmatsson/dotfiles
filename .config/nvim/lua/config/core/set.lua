@@ -37,8 +37,7 @@ vim.diagnostic.config({
 	update_in_insert = false, -- Disable updates while typing
 })
 
-vim.o.completeopt = "menu,menuone,preview,noinsert" -- Fix auto inserted completions
-
+vim.o.completeopt = "menu,menuone,fuzzy,preview,noinsert" -- Fix auto inserted completions
 vim.o.laststatus = 3
 
 vim.cmd.colorscheme("catppuccin-frappe")

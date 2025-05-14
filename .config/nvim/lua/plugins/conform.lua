@@ -11,7 +11,7 @@ return {
 	config = function(_, opts)
 		local conform = require("conform")
 		conform.setup(opts)
-		vim.keymap.set("n", "<leader>kd", function()
+		vim.keymap.set("n", "<leader>F", function()
 			conform.format()
 		end, { silent = true, noremap = true, desc = "Format document" })
 	end,

@@ -3,9 +3,12 @@ return {
 	event = "LspAttach",
 	opts = {
 		formatters_by_ft = {
-			lua = { "stylua", lsp_format = "fallback" },
-			python = { "isort", "black", lsp_format = "fallback" },
-			["*"] = { "prettierd" },
+			lua = { "stylua" },
+			python = { "isort", "black" },
+			go = { "goimports", "gofmt", stop_after_first = true },
+		},
+		default_format_opts = {
+			lsp_format = "fallback",
 		},
 	},
 	config = function(_, opts)

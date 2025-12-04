@@ -38,6 +38,9 @@ vim.api.nvim_set_keymap(
 vim.keymap.set("n", "<leader>ba", "<CMD>%bd<CR>", { desc = "Delete all buffers" })
 vim.keymap.set("n", "<leader>bo", "<CMD>%bd|e#|bd#<CR>", { desc = "Delete all other buffers" })
 
+vim.keymap.set("n", "<A-+>", "<C-a>", { desc = "Increment", noremap = true }) -- Increment number
+vim.keymap.set("n", "<A-->", "<C-x>", { desc = "Decrement", noremap = true }) -- Decrement number
+
 -- Plugins
 vim.keymap.set("n", "<leader>ff", "<CMD>FzfLua files<CR>", { desc = "Find files" })
 vim.keymap.set("n", "<leader>fg", "<CMD>FzfLua live_grep<CR>", { desc = "Grep files" })

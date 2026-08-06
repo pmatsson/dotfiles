@@ -1,0 +1,5 @@
+vim.keymap.set("n", "<leader>ke", vim.diagnostic.open_float)
+vim.keymap.set("n", "<leader>ka", function()
+	vim.diagnostic.setqflist()
+	vim.cmd("copen")
+end, { silent = true })

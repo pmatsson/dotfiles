@@ -1,0 +1,250 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+VIDEO_DEVICE="/dev/video10"
+VIDEO_NUMBER="${VIDEO_DEVICE#/dev/video}"
+CAMERA_LABEL="Sony Webcam"
+
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp}"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}"
+
+PID_FILE="$RUNTIME_DIR/sony-webcam.pid"
+LOG_FILE="$STATE_DIR/sony-webcam.log"
+
+mkdir -p "$STATE_DIR"
+
+require_command() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        echo "Missing required command: $1" >&2
+        exit 1
+    fi
+}
+
+camera_detected() {
+    gphoto2 --auto-detect 2>/dev/null |
+        grep -qE 'usb:[0-9]+,[0-9]+'
+}
+
+pipeline_running() {
+    [[ -f "$PID_FILE" ]] || return 1
+
+    local pid
+    pid="$(cat "$PID_FILE" 2>/dev/null)" || return 1
+
+    [[ "$pid" =~ ^[0-9]+$ ]] || return 1
+    kill -0 "$pid" 2>/dev/null
+}
+
+load_virtual_camera() {
+    if [[ -e "$VIDEO_DEVICE" ]]; then
+        return 0
+    fi
+
+    echo "Creating virtual camera $VIDEO_DEVICE..."
+
+    # If v4l2loopback is already loaded without the requested device,
+    # unload it before loading it again with the correct parameters.
+    if grep -q '^v4l2loopback ' /proc/modules; then
+        sudo modprobe -r v4l2loopback
+    fi
+
+    sudo modprobe v4l2loopback \
+        devices=1 \
+        video_nr="$VIDEO_NUMBER" \
+        card_label="$CAMERA_LABEL" \
+        exclusive_caps=1
+
+    # The device node may take a moment to appear after modprobe.
+    for _ in {1..20}; do
+        if [[ -e "$VIDEO_DEVICE" ]]; then
+            break
+        fi
+        sleep 0.1
+    done
+
+    if [[ ! -e "$VIDEO_DEVICE" ]]; then
+        echo "Failed to create $VIDEO_DEVICE." >&2
+        exit 1
+    fi
+}
+
+start_webcam() {
+    require_command gphoto2
+    require_command ffmpeg
+    require_command setsid
+    require_command modprobe
+
+    if pipeline_running; then
+        echo "Sony webcam is already running."
+        echo "PID: $(cat "$PID_FILE")"
+        exit 0
+    fi
+
+    rm -f "$PID_FILE"
+
+    if ! camera_detected; then
+        echo "Sony camera not detected." >&2
+        echo "Connect it over USB, insert the battery, and turn it on." >&2
+        exit 1
+    fi
+
+    load_virtual_camera
+
+    # GNOME's camera service may automatically claim the camera over PTP.
+    pkill -f gvfsd-gphoto2 2>/dev/null || true
+
+    echo "Starting Sony webcam..."
+    echo "Device: $VIDEO_DEVICE"
+    echo "Log: $LOG_FILE"
+
+    # Start each session with a fresh log.
+    : >"$LOG_FILE"
+
+    setsid bash -c '
+        set -o pipefail
+
+        gphoto2 --capture-movie --stdout 2>>"$1" |
+            ffmpeg \
+                -hide_banner \
+                -loglevel warning \
+                -f mjpeg \
+                -i - \
+                -vf "format=yuyv422" \
+                -pix_fmt yuyv422 \
+                -f v4l2 \
+                "$2" \
+                >>"$1" 2>&1
+    ' bash "$LOG_FILE" "$VIDEO_DEVICE" &
+
+    local pipeline_pid=$!
+    echo "$pipeline_pid" >"$PID_FILE"
+
+    # Give the pipeline up to two seconds to prove itself, but report
+    # a failure as soon as it dies instead of always waiting.
+    for _ in {1..20}; do
+        if ! kill -0 "$pipeline_pid" 2>/dev/null; then
+            break
+        fi
+        sleep 0.1
+    done
+
+    if ! kill -0 "$pipeline_pid" 2>/dev/null; then
+        rm -f "$PID_FILE"
+        echo "Webcam pipeline failed to start." >&2
+        if [[ -s "$LOG_FILE" ]]; then
+            echo >&2
+            tail -n 10 "$LOG_FILE" >&2
+        fi
+        exit 1
+    fi
+
+    echo "Sony webcam is ready."
+    echo "Select '$CAMERA_LABEL' in your application."
+}
+
+stop_webcam() {
+    local pid=""
+    local stopped_any=0
+
+    if [[ -f "$PID_FILE" ]]; then
+        pid="$(cat "$PID_FILE" 2>/dev/null || true)"
+    fi
+
+    if [[ "$pid" =~ ^[0-9]+$ ]] && kill -0 "$pid" 2>/dev/null; then
+        stopped_any=1
+        echo "Stopping Sony webcam pipeline..."
+
+        # The negative PID targets the whole process group created by setsid,
+        # including both gphoto2 and ffmpeg.
+        kill -TERM -- "-$pid" 2>/dev/null || true
+
+        for _ in {1..30}; do
+            if ! kill -0 "$pid" 2>/dev/null; then
+                break
+            fi
+            sleep 0.1
+        done
+
+        if kill -0 "$pid" 2>/dev/null; then
+            echo "Pipeline did not stop cleanly; forcing shutdown..."
+            kill -KILL -- "-$pid" 2>/dev/null || true
+        fi
+    else
+        echo "Sony webcam pipeline is not running."
+    fi
+
+    rm -f "$PID_FILE"
+
+    # Clean up any orphaned processes from an older version of the script.
+    if pkill -TERM -f 'gphoto2 --capture-movie --stdout' 2>/dev/null; then
+        stopped_any=1
+    fi
+    if pkill -TERM -f "ffmpeg.*$VIDEO_DEVICE" 2>/dev/null; then
+        stopped_any=1
+    fi
+
+    if (( stopped_any )); then
+        # Give the killed processes a moment to release the video device.
+        sleep 1
+    fi
+
+    if grep -q '^v4l2loopback ' /proc/modules; then
+        echo "Removing virtual camera device..."
+
+        if ! sudo modprobe -r v4l2loopback; then
+            echo "Could not unload v4l2loopback." >&2
+            echo "A program may still be using $VIDEO_DEVICE." >&2
+            echo "Check with:" >&2
+            echo "  sudo fuser -v $VIDEO_DEVICE" >&2
+            exit 1
+        fi
+    fi
+
+    echo "Sony webcam stopped."
+}
+
+show_status() {
+    if pipeline_running; then
+        echo "Sony webcam is running."
+        echo "PID: $(cat "$PID_FILE")"
+        echo "Device: $VIDEO_DEVICE"
+    else
+        rm -f "$PID_FILE"
+        echo "Sony webcam pipeline is not running."
+
+        if [[ -e "$VIDEO_DEVICE" ]]; then
+            echo "The virtual device still exists: $VIDEO_DEVICE"
+            echo "Run '$0 stop' to remove it."
+        fi
+
+        exit 1
+    fi
+}
+
+show_log() {
+    touch "$LOG_FILE"
+    tail -n 50 -f "$LOG_FILE"
+}
+
+case "${1:-start}" in
+    start)
+        start_webcam
+        ;;
+    stop)
+        stop_webcam
+        ;;
+    restart)
+        stop_webcam
+        start_webcam
+        ;;
+    status)
+        show_status
+        ;;
+    log)
+        show_log
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart|status|log}" >&2
+        exit 2
+        ;;
+esac

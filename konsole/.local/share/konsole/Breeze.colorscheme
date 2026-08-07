@@ -90,7 +90,7 @@ Color=61,174,233
 
 [General]
 Anchor=1,0.5
-Blur=false
+Blur=true
 ColorRandomization=false
 Description=Breeze
 FillStyle=Crop

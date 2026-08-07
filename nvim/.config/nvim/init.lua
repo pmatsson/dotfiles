@@ -2,7 +2,7 @@ vim.g.mapleader = " "
 
 require("options")
 require("lsp")
-require("colorscheme")
+require("plugins.onedark")
 require("plugins.treesitter")
 require("plugins.dap")
 require("plugins.oil")

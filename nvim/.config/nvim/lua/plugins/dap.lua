@@ -54,18 +54,20 @@ vim.keymap.set("n", "<leader>dq", dap.terminate, { desc = "Debug: terminate" })
 vim.keymap.set("n", "<leader>dh", function()
 	require("dap.ui.widgets").hover()
 end, { desc = "Debug: hover value" })
--- Sidebar with scope variables: opens when a session starts, closes when it
--- ends, live-updates while stepping. <leader>ds toggles it manually.
 local widgets = require("dap.ui.widgets")
 local scopes_sidebar = widgets.sidebar(widgets.scopes, { width = 40 })
+local frames_panel = widgets.sidebar(widgets.frames, { height = 10 }, "belowright split")
 
-dap.listeners.after.event_initialized["scopes_sidebar"] = function()
+dap.listeners.after.event_initialized["dap_windows"] = function()
 	scopes_sidebar.open()
+	frames_panel.open()
 end
 for _, event in ipairs({ "event_terminated", "event_exited" }) do
-	dap.listeners.before[event]["scopes_sidebar"] = function()
+	dap.listeners.before[event]["dap_windows"] = function()
 		scopes_sidebar.close()
+		frames_panel.close()
 	end
 end
 
 vim.keymap.set("n", "<leader>ds", scopes_sidebar.toggle, { desc = "Debug: toggle scopes sidebar" })
+vim.keymap.set("n", "<leader>df", frames_panel.toggle, { desc = "Debug: toggle call stack" })

@@ -3,6 +3,12 @@
 vim.pack.add({ "https://github.com/nvim-treesitter/nvim-treesitter" })
 
 require("nvim-treesitter").install({
+	"c",
+	"lua",
+	"vim",
+	"vimdoc",
+	"markdown",
+	"query",
 	"typescript",
 	"tsx",
 	"javascript",
@@ -18,7 +24,6 @@ require("nvim-treesitter").install({
 })
 
 vim.api.nvim_create_autocmd("FileType", {
-	-- lua, c, vim, markdown and query parsers are bundled with neovim
 	pattern = {
 		"lua",
 		"c",

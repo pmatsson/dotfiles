@@ -40,3 +40,7 @@ export PKG_CONFIG_PATH="$HOME/.local/opt/sdl3/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 
 
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/philip/.local/bin:$PATH"

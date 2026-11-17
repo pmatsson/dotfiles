@@ -17,12 +17,12 @@ vim.keymap.set("n", "<M-Down>", ":m +1<CR>==", { silent = true, desc = "Move lin
 vim.keymap.set("v", "<M-Up>", ":m '<-2<CR>gv=gv", { silent = true, desc = "Move selection up" })
 vim.keymap.set("v", "<M-Down>", ":m '>+1<CR>gv=gv", { silent = true, desc = "Move selection down" })
 
--- Buffers
-vim.keymap.set("n", "<Tab>", "<CMD>bnext<CR>", { desc = "Next buffer" })
-vim.keymap.set("n", "<S-Tab>", "<CMD>bprevious<CR>", { desc = "Previous buffer" })
 vim.keymap.set("n", "<leader>bd", "<CMD>bd<CR>", { desc = "Delete the current buffer" })
 vim.keymap.set("n", "<leader>ba", "<CMD>%bd<CR>", { desc = "Delete all buffers" })
 vim.keymap.set("n", "<leader>bo", "<CMD>%bd|e#|bd#<CR>", { desc = "Delete all other buffers" })
+
+vim.keymap.set({ "n", "x", "o" }, "ö", "[", { remap = true, desc = "[ prefix" })
+vim.keymap.set({ "n", "x", "o" }, "ä", "]", { remap = true, desc = "] prefix" })
 
 vim.keymap.set("n", "<A-+>", "<C-a>", { desc = "Increment" })
 vim.keymap.set("n", "<A-->", "<C-x>", { desc = "Decrement" })

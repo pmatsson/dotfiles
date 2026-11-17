@@ -8,6 +8,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		if client ~= nil and client:supports_method("textDocument/completion") then
 			vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
 		end
+		if client ~= nil and client:supports_method("textDocument/definition") then
+			vim.keymap.set("n", "gd", vim.lsp.buf.definition, { buffer = ev.buf, desc = "Go to definition" })
+		end
 	end,
 })
 

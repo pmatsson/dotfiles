@@ -32,5 +32,9 @@ gui:
   authorColors:
     "*": "#b7bdf8"
 
+git:
+  pagers:
+    - pager: delta --dark --paging=never --side-by-side --line-numbers
+
 # return straight to lazygit after e.g. editing, no "press enter" step
 promptToReturnFromSubprocess: false
